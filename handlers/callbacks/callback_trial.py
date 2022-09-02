@@ -1,10 +1,10 @@
 from aiogram import Router, types
 from keyboards import kb_trial_callback
 
-trial_callback = Router()
+router = Router()
 
 
-@trial_callback.callback_query(text='trial_lesson')
+@router.callback_query(text='trial_lesson')
 async def get_trial_callback(callback: types.CallbackQuery):
     await callback.message.answer('Для начала давайте определимся '
                                   'кого мы будем записывать на пробное занятие!',
