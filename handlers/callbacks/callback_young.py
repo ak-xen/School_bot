@@ -7,10 +7,13 @@ router = Router()
 
 
 class Form(StatesGroup):
-    get_name = State()
-    get_telephone_number = State()
+    get_name_parents = State()
+    get_name_child = State()
+    get_telephone_number_parents = State()
+    get_telephone_number_child = State()
     get_age = State()
     get_addr = State()
+    get_school_addr = State()
     get_lang = State()
     get_skill = State()
     get_format_learning = State()
@@ -23,36 +26,66 @@ class Form(StatesGroup):
 FORM_LIST = {}
 
 
-@router.callback_query(text='adult')
+@router.callback_query(text='young')
 async def adult_trial_callback(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer('Сперва нужно познакомиться!\n'
-                                  'Напишите имя, фамилию и отчество человека, '
+                                  'Напишите имя, фамилию и отчество родителя, '
                                   'который будет записан.\n'
                                   'Пример : Иванов Иван Иванович\n\n'
                                   'Вы в любой момент можете прекратить'
                                   'заполнение заявки написав сообщение'
                                   '"STOP". (Ваша заявка не будет отправлена!)')
-    await state.set_state(Form.get_name)
+    await state.set_state(Form.get_name_parents)
     await callback.answer()
 
 
-@router.message(Form.get_name)
-async def get_name(message: types.Message, state: FSMContext):
+@router.message(Form.get_name_parents)
+async def get_name_parents(message: types.Message, state: FSMContext):
     if message.text == 'STOP':
         await stop_fsm(message, state)
         return
-    FORM_LIST['name'] = message.text
+    FORM_LIST['name parents'] = message.text
+    await message.answer("Отлично!\nА теперь напишите ФИО ребенка! ")
+    await state.set_state(Form.get_name_child)
+
+
+@router.message(Form.get_name_child)
+async def get_name_child(message: types.Message, state: FSMContext):
+    if message.text == 'STOP':
+        await stop_fsm(message, state)
+        return
+    FORM_LIST['name child'] = message.text
     await message.answer("Отлично!\nА теперь введите, свой номер телефона: ")
-    await state.set_state(Form.get_telephone_number)
+    await state.set_state(Form.get_telephone_number_parents)
 
 
-@router.message(Form.get_telephone_number)
-async def get_telephone_number(message: types.Message, state: FSMContext):
+@router.message(Form.get_telephone_number_parents)
+async def get_telephone_number_parents(message: types.Message, state: FSMContext):
     if message.text == 'STOP':
         await stop_fsm(message, state)
         return
-    FORM_LIST['telephone'] = message.text
-    await message.answer("Отлично!\nТеперь введите свой адрес: ")
+    FORM_LIST['telephone parents'] = message.text
+    await message.answer("Отлично!\nТеперь номер телефона ребенка ")
+    await state.set_state(Form.get_telephone_number_child)
+
+
+@router.message(Form.get_telephone_number_child)
+async def get_telephone_number_child(message: types.Message, state: FSMContext):
+    if message.text == 'STOP':
+        await stop_fsm(message, state)
+        return
+    FORM_LIST['telephone child'] = message.text
+    await message.answer("Отлично!\nТеперь введите возраст ребенка: ")
+    await state.set_state(Form.get_age)
+
+
+@router.message(Form.get_age)
+async def get_age(message: types.Message, state: FSMContext):
+    if message.text == 'STOP':
+        await stop_fsm(message, state)
+        return
+    FORM_LIST['birth child'] = message.text
+    await message.answer("Отлично!\nТеперь введите адрес проживания свой и ребенка: ")
     await state.set_state(Form.get_addr)
 
 
@@ -62,16 +95,16 @@ async def get_addr(message: types.Message, state: FSMContext):
         await stop_fsm(message, state)
         return
     FORM_LIST['address'] = message.text
-    await message.answer("Отлично!\nТеперь введите дату своего рождения ")
-    await state.set_state(Form.get_age)
+    await message.answer("Отлично!\nТеперь введите адрес и номер школы вашего ребенка ")
+    await state.set_state(Form.get_school_addr)
 
 
-@router.message(Form.get_age)
-async def get_age(message: types.Message, state: FSMContext):
+@router.message(Form.get_school_addr)
+async def get_school_addr(message: types.Message, state: FSMContext):
     if message.text == 'STOP':
         await stop_fsm(message, state)
         return
-    FORM_LIST['birth day'] = message.text
+    FORM_LIST['school address'] = message.text
     await message.answer("Супер!\nНапишите, какой или какие языки"
                          "Вы хотели бы изучить?\n"
                          "СПИСОК ЯЗЫКОВ")

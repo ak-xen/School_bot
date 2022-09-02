@@ -4,7 +4,7 @@ from aiogram import Bot, Dispatcher
 from config import TOKEN
 from support import on_startup
 from handlers import start
-from handlers.callbacks import callback_trial, callback_adult
+from handlers.callbacks import callback_trial, callback_adult, callback_young
 
 
 async def main():
@@ -14,6 +14,7 @@ async def main():
     dp.include_router(start.router)
     dp.include_router(callback_trial.router)
     dp.include_router(callback_adult.router)
+    dp.include_router(callback_young.router)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, on_startup=on_startup())
 
